@@ -1,0 +1,14 @@
+{
+  "name" : "COFFEENODE-TRM",
+  "version" : "0.1.1",
+  "description" : "Let a Hundred Colors Glow.",
+  "author": "loveencounterflow <paragate@gmx.net>",
+  "repository" : {
+    "type" : "git",
+    "url" : "http://github.com/loveencounterflow/COFFEENODE-TRM.git"
+  },
+  "main": "./main.coffee",
+  "engines" : {
+    "node" : "~0.10.4"
+  }
+}
