@@ -3,13 +3,7 @@
 
 ############################################################################################################
 $                         = exports ? @
-# log                       = console.log
-xrpr                      = require 'COFFEENODE/ENGINE/xrpr'
-Σ                         = require 'COFFEENODE/Σ/implementation'
-if Σ.emit?
-  rpr = ( P... ) -> return Σ.emit '!Δ/call/specific/rpr', P...
-else
-  rpr = xrpr
+rpr                       = ( require 'util' ).inspect
 #-----------------------------------------------------------------------------------------------------------
 isa_text                  = ( x ) -> return ( Object.prototype.toString.call x ) == '[object String]'
 reset_sequence            = "\x1B[0m"
