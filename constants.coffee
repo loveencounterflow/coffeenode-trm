@@ -24,6 +24,7 @@
 @colors =
   black:                    "\x1b[38;05;16m"
   blue:                     "\x1b[38;05;19m"
+  cyan:                     "\x1b[38;05;45m"
   gold:                     "\x1b[38;05;220m"
   green:                    "\x1b[38;05;28m"
   grey:                     "\x1b[38;05;240m"
