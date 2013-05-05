@@ -1,61 +1,90 @@
 
 
 
+
 ############################################################################################################
-$                         = exports ? @
+@constants                = require './constants'
+@separator                = ' '
+isa_text                  = ( x ) -> return ( Object::toString.call x ) == '[object String]'
 rpr                       = ( require 'util' ).inspect
-#-----------------------------------------------------------------------------------------------------------
-isa_text                  = ( x ) -> return ( Object.prototype.toString.call x ) == '[object String]'
-reset_sequence            = "\x1B[0m"
+
 
 #-----------------------------------------------------------------------------------------------------------
-wrap  = ( color_code ) ->
-  return ( P... ) ->
-    for idx in [ 0 ... P.length ]
-      p         = P[ idx ]
-      # P[ idx ]  = xrpr p unless isa_text p # ###OBS### should be rpr signal emitter, not xrpr
-      P[ idx ]  = rpr p unless isa_text p
-    message   = P.join '\t'
-    return color_code + message + reset_sequence
+@clear_line_right         = @constants.clear_line_right
+@clear_line_left          = @constants.clear_line_left
+@clear_line               = @constants.clear_line
+@clear_below              = @constants.clear_below
+@clear_above              = @constants.clear_above
+@clear                    = @constants.clear
 
 #-----------------------------------------------------------------------------------------------------------
-$.dim_grey              = dim_grey              = wrap "\x1b[0;30m"
-$.dim_red               = dim_red               = wrap "\x1b[0;31m"
-$.dim_green             = dim_green             = wrap "\x1b[0;32m"
-$.dim_yellow            = dim_yellow            = wrap "\x1b[0;33m"
-$.dim_blue              = dim_blue              = wrap "\x1b[0;34m"
-$.dim_magenta           = dim_magenta           = wrap "\x1b[0;35m"
-$.dim_cyan              = dim_cyan              = wrap "\x1b[0;36m"
-$.dim_white             = dim_white             = wrap "\x1b[0;37m"
-$.grey                  = grey                  = wrap "\x1b[1;30m"
-$.red                   = red                   = wrap "\x1b[1;31m"
-$.green                 = green                 = wrap "\x1b[1;32m"
-$.yellow                = yellow                = wrap "\x1b[1;33m"
-$.blue                  = blue                  = wrap "\x1b[1;34m"
-$.magenta               = magenta               = wrap "\x1b[1;35m"
-$.cyan                  = cyan                  = wrap "\x1b[1;36m"
-$.white                 = white                 = wrap "\x1b[1;37m"
-$.orange                = orange                = wrap "\x1b[38;05;214m"
-$.olive                 = olive                 = wrap "\x1b[38;05;100m"
-$.plum                  = plum                  = wrap "\x1b[38;05;183m"
-$.gold                  = gold                  = wrap '\x1b[38;05;220m'
+@goto                     = ( line_nr = 1, column_nr = 1 )  -> return "\x1b[#{line_nr};#{column_nr}H"
+@goto_column              = ( column_nr = 1 )  -> return "\x1b[#{column_nr}G"
+#...........................................................................................................
+@up                       = ( count = 1 ) -> return "\x1b[#{count}A"
+@down                     = ( count = 1 ) -> return "\x1b[#{count}B"
+@right                    = ( count = 1 ) -> return "\x1b[#{count}C"
+@left                     = ( count = 1 ) -> return "\x1b[#{count}D"
+#...........................................................................................................
+@move = ( line_count, column_count ) ->
+  return ( ( if   line_count < 0 then @up     line_count else @down    line_count ) +
+           ( if column_count < 0 then @left column_count else @right column_count ) )
 
 #-----------------------------------------------------------------------------------------------------------
-$.length_of_ansi_text = ( text ) ->
-  return ( text.replace /\x1b[^m]m/, '' ).length
+@ring_bell = ->
+  process.stdout.write "\x07"
 
 #-----------------------------------------------------------------------------------------------------------
-$.truth = ( P... ) ->
-  return ( ( ( if p == true then green else if p == false then red else white ) p ) for p in P ).join ''
+effect_names =
+  blink:        1
+  bold:         1
+  reverse:      1
+  underline:    1
+#...........................................................................................................
+for effect_name of effect_names
+  effect_on       = @constants[         effect_name ]
+  effect_off      = @constants[ 'no_' + effect_name ]
+  do ( effect_name, effect_on, effect_off ) =>
+    @[ effect_name ] = ( P... ) =>
+      R         = [ effect_on, ]
+      last_idx  = P.length - 1
+      for p, idx in P
+        R.push if isa_text p then p else rpr p
+        if idx isnt last_idx
+          R.push effect_on
+          R.push @separator
+      R.push effect_off
+      return R.join ''
+#...........................................................................................................
+for color_name, color_code of @constants[ 'colors' ]
+  do ( color_name, color_code ) =>
+    @[ color_name ] = ( P... ) =>
+      R         = [ color_code, ]
+      last_idx  = P.length - 1
+      for p, idx in P
+        R.push if isa_text p then p else rpr p
+        if idx isnt last_idx
+          R.push color_code
+          R.push @separator
+      R.push @constants[ 'reset' ]
+      return R.join ''
 
-#-----------------------------------------------------------------------------------------------------------
-rainbow_colors  = [ red, green, yellow, blue, magenta, cyan, orange, olive, plum, gold, ]
-rainbow_idx     = -1
+# #-----------------------------------------------------------------------------------------------------------
+# $.length_of_ansi_text = ( text ) ->
+#   return ( text.replace /\x1b[^m]m/, '' ).length
 
-#-----------------------------------------------------------------------------------------------------------
-$.rainbow = ( P... ) ->
-  rainbow_idx += 1
-  rainbow_idx = 0 if rainbow_idx >= rainbow_colors.length
-  return rainbow_colors[ rainbow_idx ] P...
+# #-----------------------------------------------------------------------------------------------------------
+# $.truth = ( P... ) ->
+#   return ( ( ( if p == true then green else if p == false then red else white ) p ) for p in P ).join ''
+
+# #-----------------------------------------------------------------------------------------------------------
+# rainbow_colors  = [ red, green, yellow, blue, magenta, cyan, orange, olive, plum, gold, ]
+# rainbow_idx     = -1
+
+# #-----------------------------------------------------------------------------------------------------------
+# $.rainbow = ( P... ) ->
+#   rainbow_idx += 1
+#   rainbow_idx = 0 if rainbow_idx >= rainbow_colors.length
+#   return rainbow_colors[ rainbow_idx ] P...
 
 
