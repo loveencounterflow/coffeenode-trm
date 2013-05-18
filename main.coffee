@@ -5,9 +5,29 @@
 ############################################################################################################
 @constants                = require './constants'
 @separator                = ' '
-isa_text                  = ( x ) -> return ( Object::toString.call x ) == '[object String]'
-rpr                       = ( require 'util' ).inspect
+@depth_of_inspect         = 20
+TYPES                     = require 'coffeenode-types'
+isa_text                  = TYPES.isa_text.bind TYPES
+_rpr                      = ( require 'util' ).inspect
 
+#-----------------------------------------------------------------------------------------------------------
+@rpr = ( x ) ->
+  return _rpr x, depth: @depth_of_inspect
+
+#-----------------------------------------------------------------------------------------------------------
+@get_output_method = ( target, options ) ->
+  R = ( P... ) =>
+    last_idx = P.length - 1
+    for p, idx in P
+      target.write if isa_text p then p else @rpr p
+      target.write @separator unless idx is last_idx
+    target.write '\n'
+  #.........................................................................................................
+  return R
+
+#-----------------------------------------------------------------------------------------------------------
+@log                      = @get_output_method process.stderr
+@echo                     = @get_output_method process.stdout
 
 #-----------------------------------------------------------------------------------------------------------
 @clear_line_right         = @constants.clear_line_right
@@ -49,7 +69,7 @@ for effect_name of effect_names
       R         = [ effect_on, ]
       last_idx  = P.length - 1
       for p, idx in P
-        R.push if isa_text p then p else rpr p
+        R.push if isa_text p then p else @rpr p
         if idx isnt last_idx
           R.push effect_on
           R.push @separator
@@ -62,7 +82,7 @@ for color_name, color_code of @constants[ 'colors' ]
       R         = [ color_code, ]
       last_idx  = P.length - 1
       for p, idx in P
-        R.push if isa_text p then p else rpr p
+        R.push if isa_text p then p else @rpr p
         if idx isnt last_idx
           R.push color_code
           R.push @separator
