@@ -1,23 +1,7 @@
 
-.. image:: https://github.com/loveencounterflow/MULTIMIX/raw/master/artwork/multimix-small.png
-   :align: left
 
-**Let a Hundred Colors Glow.**
+# Command line utilities
 
 
-TL;DR
-============================================================================================================
-
-XXXX
-
-WTF?
-============================================================================================================
-
-XXXXXXXXXXX
-
-FTW!
-============================================================================================================
-
-XXXXXXXXXXXXXXX
 
 
