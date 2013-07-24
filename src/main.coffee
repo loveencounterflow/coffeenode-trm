@@ -97,14 +97,14 @@ for color_name, color_code of @constants[ 'colors' ]
 # $.truth = ( P... ) ->
 #   return ( ( ( if p == true then green else if p == false then red else white ) p ) for p in P ).join ''
 
-# #-----------------------------------------------------------------------------------------------------------
-# rainbow_colors  = [ red, green, yellow, blue, magenta, cyan, orange, olive, plum, gold, ]
-# rainbow_idx     = -1
+#-----------------------------------------------------------------------------------------------------------
+rainbow_color_names = """blue tan cyan sepia indigo steel brown red olive lime crimson green plum orange pink
+                        gold yellow""".split /\s+/
+rainbow_idx         = -1
 
-# #-----------------------------------------------------------------------------------------------------------
-# $.rainbow = ( P... ) ->
-#   rainbow_idx += 1
-#   rainbow_idx = 0 if rainbow_idx >= rainbow_colors.length
-#   return rainbow_colors[ rainbow_idx ] P...
+#-----------------------------------------------------------------------------------------------------------
+@rainbow = ( P... ) ->
+  rainbow_idx = ( rainbow_idx + 1 ) % rainbow_color_names.length
+  return @[ rainbow_color_names[ rainbow_idx ] ] P...
 
 
