@@ -41,6 +41,7 @@
   tan:                      "\x1b[38;05;215m"
   yellow:                   "\x1b[38;05;226m"
   grey:                     "\x1b[38;05;240m"
+  darkgrey:                 "\x1b[38;05;234m"
   white:                    "\x1b[38;05;255m"
 
   # experimental:

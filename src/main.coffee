@@ -16,18 +16,33 @@ _rpr                      = ( require 'util' ).inspect
 
 #-----------------------------------------------------------------------------------------------------------
 @get_output_method = ( target, options ) ->
-  R = ( P... ) =>
-    last_idx = P.length - 1
-    for p, idx in P
-      target.write if isa_text p then p else @rpr p
-      target.write @separator unless idx is last_idx
-    target.write '\n'
-  #.........................................................................................................
-  return R
+  return ( P... ) => target.write @pen P...
+
+#-----------------------------------------------------------------------------------------------------------
+@pen = ( P... ) ->
+  ### Given any number of arguments, return a text representing the arguments as seen fit for output
+  commands like `log`, `echo`, and the colors. ###
+  return ( @_pen P... ).concat '\n'
+
+#-----------------------------------------------------------------------------------------------------------
+@_pen = ( P... ) ->
+  ### ... ###
+  R = ( ( if isa_text p then p else @rpr p ) for p in P )
+  return R.join @separator
 
 #-----------------------------------------------------------------------------------------------------------
 @log                      = @get_output_method process.stderr
 @echo                     = @get_output_method process.stdout
+@dir = ( P... ) ->
+  switch arity = P.length
+    when 0
+      throw new Error "called TRM.dir without arguments"
+    when 1
+      x = P[ 0 ]
+    else
+      x = P[ P.length - 1 ]
+      @log @rainbow p for p, idx in P when idx < P.length - 1
+  @log @pink ( '  '.concat name for name of x ).sort().join '\n'
 
 #-----------------------------------------------------------------------------------------------------------
 @clear_line_right         = @constants.clear_line_right
@@ -89,6 +104,16 @@ for color_name, color_code of @constants[ 'colors' ]
       R.push @constants[ 'reset' ]
       return R.join ''
 
+#-----------------------------------------------------------------------------------------------------------
+@remove_colors = ( text ) ->
+  # this one from http://regexlib.com/UserPatterns.aspx?authorId=f3ce5c3c-5970-48ed-9c4e-81583022a387
+  # looks smarter but isn't JS-compatible:
+  # return text.replace /(?s)(?:\e\[(?:(\d+);?)*([A-Za-z])(.*?))(?=\e\[|\z)/g, ''
+  return text.replace @color_matcher, ''
+
+#-----------------------------------------------------------------------------------------------------------
+@color_matcher = /\x1b\[[^m]*m/g
+
 # #-----------------------------------------------------------------------------------------------------------
 # $.length_of_ansi_text = ( text ) ->
 #   return ( text.replace /\x1b[^m]m/, '' ).length
@@ -98,13 +123,67 @@ for color_name, color_code of @constants[ 'colors' ]
 #   return ( ( ( if p == true then green else if p == false then red else white ) p ) for p in P ).join ''
 
 #-----------------------------------------------------------------------------------------------------------
-rainbow_color_names = """blue tan cyan sepia indigo steel brown red olive lime crimson green plum orange pink
-                        gold yellow""".split /\s+/
+# rainbow_color_names = """blue tan cyan sepia indigo steel brown red olive lime crimson green plum orange pink
+#                         gold yellow""".split /\s+/
+rainbow_color_names = """red orange yellow green blue pink""".split /\s+/
 rainbow_idx         = -1
 
 #-----------------------------------------------------------------------------------------------------------
 @rainbow = ( P... ) ->
   rainbow_idx = ( rainbow_idx + 1 ) % rainbow_color_names.length
   return @[ rainbow_color_names[ rainbow_idx ] ] P...
+
+#-----------------------------------------------------------------------------------------------------------
+@route = ( P... ) ->
+  return @lime @underline P...
+
+#-----------------------------------------------------------------------------------------------------------
+@truth = ( P... ) ->
+  return ( ( if p then @green "✔  #{@_pen p}" else @red "✗  #{@_pen p}" ) for p in P ).join ''
+
+#-----------------------------------------------------------------------------------------------------------
+@get_logger = ( category, badge = null ) ->
+  #.........................................................................................................
+  switch category
+    #.......................................................................................................
+    when 'plain'
+      colorize  = null
+      pointer   = ''
+    #.......................................................................................................
+    when 'info'
+      colorize  = @steel.bind @
+      pointer   = @blue ' ▶ '
+    #.......................................................................................................
+    when 'whisper'
+      colorize  = @grey.bind @
+      pointer   = ''
+    #.......................................................................................................
+    when 'debug'
+      colorize  = @pink.bind @
+      pointer   = @grey ' ⚙ '
+    #.......................................................................................................
+    when 'alert'
+      colorize  = @red.bind @
+      pointer   = @blink @red ' ⚠ '
+    #.......................................................................................................
+    when 'warn'
+      colorize  = @red.bind @
+      pointer   = ' ❗ '
+    #.......................................................................................................
+    when 'help'
+      colorize  = @lime.bind @
+      pointer   = @gold ' ☛ '
+    #.......................................................................................................
+    else
+      throw new Error "unknown logger category #{_rpr category}"
+  #.........................................................................................................
+  prefix = if badge? then ( @darkgrey badge ).concat ' ', pointer else pointer
+  #.........................................................................................................
+  if colorize?
+    R = ( P... ) => return @log prefix, colorize P...
+  else
+    R = ( P... ) => return @log prefix, P...
+  #.........................................................................................................
+  return R
 
 

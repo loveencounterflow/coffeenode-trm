@@ -15,9 +15,6 @@
     "coffee-script": "~1.6.2"
   },
   "main": "./lib/main.js",
-  "engines": {
-    "node": "~0.10.4"
-  },
   "larq": {
     "extensions": {},
     "compile-statements": {},
