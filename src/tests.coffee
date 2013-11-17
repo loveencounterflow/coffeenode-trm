@@ -46,3 +46,20 @@ show_color_gamut()
 log()
 log()
 log()
+
+
+colortext     = TRM.pen 'foo', ( TRM.steel 'helo', 42 ), 'bar', ( TRM.pink 'baz' )
+console.log colortext
+# color_matcher = /\x1b\[(38);(05);([0-9]{1,3})m([^\x1b]*)\x1b\[(?:0m|K)/
+# console.log rpr colortext.match color_matcher
+
+# info rpr TRM.pen ( TRM.pink 'helo' ), 'foo', ( TRM.gold 'oops' )
+
+colortext = '\x1b[38;05;199mhelo\x1b[0m foo \x1b[38;05;214moops\x1b[0m'
+colortext = '\x1b[38;05;199mhelo\x1b[0m foo \x1b[38;05;214moops'
+
+info @analyze colortext
+info @as_html colortext
+info @as_html colortext, 'css-prefix': 'xxxx', 'close-spans': yes
+debug @get_css_source()
+

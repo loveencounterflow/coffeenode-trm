@@ -9,6 +9,13 @@
 TYPES                     = require 'coffeenode-types'
 isa_text                  = TYPES.isa_text.bind TYPES
 _rpr                      = ( require 'util' ).inspect
+ANALYZER                  = require './vt100-analyzer'
+#...........................................................................................................
+### https://github.com/mgutz/execSync
+NB `execSync` compiles with warnings under NodeJS 0.11.7 on my OSX box but appears to work, so let's
+pretend it won't be a problem for most people: ###
+sh                        = require 'execSync'
+
 
 #-----------------------------------------------------------------------------------------------------------
 @rpr = ( x ) ->
@@ -44,6 +51,32 @@ _rpr                      = ( require 'util' ).inspect
       @log @rainbow p for p, idx in P when idx < P.length - 1
   @log @pink ( '  '.concat name for name of x ).sort().join '\n'
 
+
+#===========================================================================================================
+# SHELL COMMANDS
+#-----------------------------------------------------------------------------------------------------------
+@execute = ( command, handler ) ->
+  unless handler?
+    { code, stdout } = sh.exec command
+    throw new Error stdout unless code is 0
+    return lines_from_stdout stdout
+  #.........................................................................................................
+  njs_cp.exec O[ 'on-change' ], ( error, stdout, stderr ) =>
+    return handler error if error?
+    return handler new Error stderr if stderr? and stderr.length isnt 0
+    handler null, lines_from_stdout stdout
+  #.........................................................................................................
+  return null
+
+#-----------------------------------------------------------------------------------------------------------
+lines_from_stdout = ( stdout ) ->
+  R = stdout.split '\n'
+  R.length -= 1 if R[ R.length - 1 ].length is 0
+  return R
+
+
+#===========================================================================================================
+# COLORS & EFFECTS
 #-----------------------------------------------------------------------------------------------------------
 @clear_line_right         = @constants.clear_line_right
 @clear_line_left          = @constants.clear_line_left
@@ -148,15 +181,15 @@ rainbow_idx         = -1
     #.......................................................................................................
     when 'plain'
       colorize  = null
-      pointer   = ''
+      pointer   = @grey ' ▶ '
     #.......................................................................................................
     when 'info'
       colorize  = @steel.bind @
-      pointer   = @blue ' ▶ '
+      pointer   = @grey ' ▶ '
     #.......................................................................................................
     when 'whisper'
       colorize  = @grey.bind @
-      pointer   = ''
+      pointer   = @grey ' ▶ '
     #.......................................................................................................
     when 'debug'
       colorize  = @pink.bind @
