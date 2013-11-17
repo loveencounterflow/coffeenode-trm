@@ -32,12 +32,23 @@ help      = TRM.get_logger 'help',  badge
 info "colors!"
 alert "something went wrong"
 TRM.dir ( new Date() )
-log TRM.gold [ 1, 2, 3, ] # goes to stderr
-echo 'redirect only this part with `>`' # goes to stdout
+
+# goes to stderr:
+log TRM.gold [ 1, 2, 3, ]
+
+# goes to stdout:
+echo 'redirect only this part with `>`'
+
+message = TRM.pen 'do you like', ( TRM.green 'colorful' ), ( TRM.pink 'outputs' ), '?'
+log message
+log rpr message
+
+# convert those colors to spans:
+log TRM.as_html message
 
 ```
 
 ## tl;dr
 
-TRM is a library to do
+TRM is a library to do simplify doing colorful stuff and meaningful outputs on the command line.
 
