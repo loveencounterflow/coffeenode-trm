@@ -58,8 +58,8 @@ console.log colortext
 colortext = '\x1b[38;05;199mhelo\x1b[0m foo \x1b[38;05;214moops\x1b[0m'
 colortext = '\x1b[38;05;199mhelo\x1b[0m foo \x1b[38;05;214moops'
 
-info @analyze colortext
-info @as_html colortext
-info @as_html colortext, 'css-prefix': 'xxxx', 'close-spans': yes
-debug @get_css_source()
+console.log TRM.analyze colortext
+console.log TRM.as_html colortext
+console.log TRM.as_html colortext, 'css-prefix': 'xxxx', 'close-spans': yes
+# console.log TRM.get_css_source()
 

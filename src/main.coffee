@@ -220,3 +220,23 @@ rainbow_idx         = -1
   return R
 
 
+#===========================================================================================================
+# EXTRACTING COLORS / CONVERTING COLORS TO HTML
+#-----------------------------------------------------------------------------------------------------------
+### TAINT naming unstable, to be renamed ###
+@as_html = ANALYZER.as_html.bind ANALYZER
+@get_css_source = ANALYZER.get_css_source.bind ANALYZER
+@analyze = ANALYZER.analyze.bind ANALYZER
+
+#-----------------------------------------------------------------------------------------------------------
+@clean = ( text ) ->
+  is_ansicode = yes
+  R           = []
+  #.........................................................................................................
+  return ( chunk for chunk in @analyze text when ( is_ansicode = not is_ansicode ) ).join ''
+
+
+
+
+
+
