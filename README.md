@@ -18,10 +18,12 @@ On the command line:
 In your scripts:
 
 ```coffeescript
+
+# These lines start many of my scripts:
 TRM       = require 'coffeenode-trm'
 rpr       = TRM.rpr.bind TRM
 echo      = TRM.echo.bind TRM
-badge     = 'any ID text you like'
+badge     = 'demo'
 log       = TRM.get_logger 'plain', badge
 info      = TRM.get_logger 'info',  badge
 alert     = TRM.get_logger 'alert', badge
@@ -31,20 +33,20 @@ help      = TRM.get_logger 'help',  badge
 
 info "colors!"
 alert "something went wrong"
-TRM.dir ( new Date() )
+TRM.dir ( [] )
 
 # goes to stderr:
 log TRM.gold [ 1, 2, 3, ]
 
-# goes to stdout:
+# goes to stdout without the 'badge':
 echo 'redirect only this part with `>`'
 
 # `TRM.pen` (think of 'to pen a text') is like `TRM.echo`, except it does not output anything
 # but returns a textual representation of its arguments:
 message = TRM.pen 'do you like', ( TRM.green 'colorful' ), ( TRM.pink 'outputs' ), '?'
-log message
+log message.trim()
 
-# `rpr` (short for: 'represenation') gives you a `( require 'util' ).inspect`-like output; it is applied
+# `rpr` (short for: 'representation') gives you a `( require 'util' ).inspect`-like output; it is applied
 # by all `TRM` logging functions by default to avoid any `[object Object]` nonsense; apply it explicitly
 # to get a view into strings.
 log rpr 242 # same as `log 242` (true for all values except texts)

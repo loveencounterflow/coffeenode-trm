@@ -10,11 +10,6 @@ TYPES                     = require 'coffeenode-types'
 isa_text                  = TYPES.isa_text.bind TYPES
 _rpr                      = ( require 'util' ).inspect
 ANALYZER                  = require './vt100-analyzer'
-#...........................................................................................................
-### https://github.com/mgutz/execSync
-NB `execSync` compiles with warnings under NodeJS 0.11.7 on my OSX box but appears to work, so let's
-pretend it won't be a problem for most people: ###
-sh                        = require 'execSync'
 
 
 #-----------------------------------------------------------------------------------------------------------
@@ -40,16 +35,6 @@ sh                        = require 'execSync'
 #-----------------------------------------------------------------------------------------------------------
 @log                      = @get_output_method process.stderr
 @echo                     = @get_output_method process.stdout
-@dir = ( P... ) ->
-  switch arity = P.length
-    when 0
-      throw new Error "called TRM.dir without arguments"
-    when 1
-      x = P[ 0 ]
-    else
-      x = P[ P.length - 1 ]
-      @log @rainbow p for p, idx in P when idx < P.length - 1
-  @log @pink ( '  '.concat name for name of x ).sort().join '\n'
 
 
 #===========================================================================================================
@@ -57,6 +42,11 @@ sh                        = require 'execSync'
 #-----------------------------------------------------------------------------------------------------------
 @execute = ( command, handler ) ->
   unless handler?
+    #...........................................................................................................
+    ### https://github.com/mgutz/execSync
+    NB `execSync` compiles with warnings under NodeJS 0.11.7 on my OSX box but appears to work, so let's
+    pretend it won't be a problem for most people: ###
+    sh = require 'execSync'
     { code, stdout } = sh.exec command
     throw new Error stdout unless code is 0
     return lines_from_stdout stdout
@@ -234,6 +224,87 @@ rainbow_idx         = -1
   R           = []
   #.........................................................................................................
   return ( chunk for chunk in @analyze text when ( is_ansicode = not is_ansicode ) ).join ''
+
+
+#===========================================================================================================
+# VALUE REPORTING
+#-----------------------------------------------------------------------------------------------------------
+@_prototype_of_object = Object.getPrototypeOf new Object()
+
+#-----------------------------------------------------------------------------------------------------------
+@_dir_options =
+  'skip-list-idxs':   yes
+  'skip-object':      yes
+
+#-----------------------------------------------------------------------------------------------------------
+@_marker_by_type =
+  'function':       '()'
+
+#-----------------------------------------------------------------------------------------------------------
+@dir = ( P... ) ->
+  switch arity = P.length
+    when 0
+      throw new Error "called TRM.dir without arguments"
+    when 1
+      x = P[ 0 ]
+    else
+      x = P[ P.length - 1 ]
+      @log @rainbow p for p, idx in P when idx < P.length - 1
+  width = if process.stdout.isTTY then process.stdout.columns else 108
+  r     = ( @rpr x ).replace /\n\s*/g, ' '
+  r     = r[ .. width - 4 ].concat @grey ' ...' if r.length > width
+  @log '\n'.concat ( @lime r ), '\n', ( ( @_dir x ).join @grey ' ' ), '\n'
+
+#-----------------------------------------------------------------------------------------------------------
+@_dir = ( x ) ->
+  R = []
+  for [ role, p, type, names, ] in @_get_prototypes_types_and_property_names x, []
+    R.push @grey '('.concat role, ')'
+    R.push @orange type
+    for name in names
+      marker = @_marker_from_type TYPES.type_of ( Object.getOwnPropertyDescriptor p, name )[ 'value' ]
+      R.push ( @cyan name ).concat @grey marker
+  return R
+
+#-----------------------------------------------------------------------------------------------------------
+ @_is_list_idx = ( idx_txt, length ) ->
+  return false unless /^[0-9]+$/.test idx_txt
+  return 0 <= ( parseInt idx_txt ) < length
+
+#-----------------------------------------------------------------------------------------------------------
+@_marker_from_type = ( type ) ->
+  return @_marker_by_type[ type ] ? '|'.concat type
+
+#-----------------------------------------------------------------------------------------------------------
+@_get_prototypes_types_and_property_names = ( x, types_and_names ) ->
+  role = if types_and_names.length is 0 then 'type' else 'prototype'
+  unless x?
+    types_and_names.push [ role, x, ( TYPES.type_of x ), [], ]
+    return types_and_names
+  #.........................................................................................................
+  try
+    names           = Object.getOwnPropertyNames x
+    prototype       = Object.getPrototypeOf x
+  catch error
+    throw error unless error[ 'message' ] is 'Object.getOwnPropertyNames called on non-object'
+    x_              = new Object x
+    names           = Object.getOwnPropertyNames x_
+    prototype       = Object.getPrototypeOf x_
+  #.........................................................................................................
+  try
+    length = x.length
+    if length?
+      names = ( name for name in names when not  @_is_list_idx name, x.length )
+  catch error
+    throw error unless error[ 'message' ].test /^Cannot read property 'length' of /
+  #.........................................................................................................
+  names.sort()
+  types_and_names.push [ role, x, ( TYPES.type_of x ), names ]
+  #.........................................................................................................
+  if prototype? and not ( @_dir_options[ 'skip-object' ] and prototype is @_prototype_of_object )
+    @_get_prototypes_types_and_property_names prototype, types_and_names
+  #.........................................................................................................
+  return types_and_names
 
 
 

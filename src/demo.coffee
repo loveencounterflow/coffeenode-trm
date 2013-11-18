@@ -22,7 +22,7 @@ echo 'redirect only this part with `>`'
 # `TRM.pen` (think of 'to pen a text') is like `TRM.echo`, except it does not output anything
 # but returns a textual representation of its arguments:
 message = TRM.pen 'do you like', ( TRM.green 'colorful' ), ( TRM.pink 'outputs' ), '?'
-log message
+log message.trim()
 log rpr message
 
 # convert colors in the message to spans:
