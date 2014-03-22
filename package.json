@@ -12,26 +12,13 @@
     "url": "http://github.com/loveencounterflow/coffeenode-trm.git"
   },
   "dependencies": {
-    "coffee-script": "~1.6.2",
+    "coffee-script": "~1.7.1",
     "execSync": "~1.0.1-pre"
   },
   "main": "./lib/main.js",
-  "larq": {
-    "extensions": {},
-    "compile-statements": {},
-    "%cache": {
-      "routes": {
-        "lib/tests.js": 1,
-        "lib/main.js": 1,
-        "lib/constants.js": 1,
-        "lib/vt100-analyzer.js": 1,
-        "lib/demo.js": 1
-      }
-    }
-  },
   "bugs": {
     "url": "https://github.com/loveencounterflow/coffeenode-trm/issues"
   },
   "readme": "ERROR: No README data found!",
-  "_id": "coffeenode-trm@0.1.12"
+  "_id": "coffeenode-trm@0.1.13"
 }

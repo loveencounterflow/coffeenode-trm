@@ -13,6 +13,17 @@ ANALYZER                  = require './vt100-analyzer'
 
 
 #-----------------------------------------------------------------------------------------------------------
+@ask = ( prompt, handler ) ->
+  rl = ( require 'readline' ).createInterface
+    input:  process.stdin
+    output: process.stdout
+  #.........................................................................................................
+  prompt += ' ' unless /\s+$/.test prompt
+  rl.question ( @cyan prompt ), ( answer ) ->
+    rl.close()
+    handler null, answer
+
+#-----------------------------------------------------------------------------------------------------------
 @rpr = ( x ) ->
   return _rpr x, depth: @depth_of_inspect
 
@@ -252,7 +263,7 @@ rainbow_idx         = -1
       @log @rainbow p for p, idx in P when idx < P.length - 1
   width = if process.stdout.isTTY then process.stdout.columns else 108
   r     = ( @rpr x ).replace /\n\s*/g, ' '
-  r     = r[ .. width - 4 ].concat @grey ' ...' if r.length > width
+  r     = r[ .. Math.max 5, width - 5 ].concat @grey ' ...' if r.length > width
   @log '\n'.concat ( @lime r ), '\n', ( ( @_dir x ).join @grey ' ' ), '\n'
 
 #-----------------------------------------------------------------------------------------------------------
