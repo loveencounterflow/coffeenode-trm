@@ -23,19 +23,19 @@ ANALYZER                  = require './vt100-analyzer'
     rl.close()
     handler null, answer
 
-#-----------------------------------------------------------------------------------------------------------
-@rpr = ( x ) ->
-  try
-    if x.toString? and ( x.toString isnt Object::toString )
-      return x.toString()
-    else
-      return @_rpr x
-  catch error
-    throw error unless /^Cannot read property/.test error[ 'message' ]
-    return @_rpr x
+# #-----------------------------------------------------------------------------------------------------------
+# @rpr = ( x ) ->
+#   try
+#     if x.toString? and ( x.toString isnt Object::toString )
+#       return x.toString()
+#     else
+#       return @_rpr x
+#   catch error
+#     throw error unless /^Cannot read property/.test error[ 'message' ]
+#     return @_rpr x
 
 #-----------------------------------------------------------------------------------------------------------
-@_rpr = ( x ) ->
+@rpr = ( x ) ->
   return _rpr x, depth: @depth_of_inspect
 
 #-----------------------------------------------------------------------------------------------------------
