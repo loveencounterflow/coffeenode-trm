@@ -6,22 +6,12 @@
 @constants                = require './constants'
 @separator                = ' '
 @depth_of_inspect         = 20
+badge                     = 'TRM'
 TYPES                     = require 'coffeenode-types'
 isa_text                  = TYPES.isa_text.bind TYPES
 _rpr                      = ( require 'util' ).inspect
 ANALYZER                  = require './vt100-analyzer'
 
-
-#-----------------------------------------------------------------------------------------------------------
-@ask = ( prompt, handler ) ->
-  rl = ( require 'readline' ).createInterface
-    input:  process.stdin
-    output: process.stdout
-  #.........................................................................................................
-  prompt += ' ' unless /\s+$/.test prompt
-  rl.question ( @cyan prompt ), ( answer ) ->
-    rl.close()
-    handler null, answer
 
 # #-----------------------------------------------------------------------------------------------------------
 # @rpr = ( x ) ->
@@ -57,6 +47,44 @@ ANALYZER                  = require './vt100-analyzer'
 #-----------------------------------------------------------------------------------------------------------
 @log                      = @get_output_method process.stderr
 @echo                     = @get_output_method process.stdout
+
+#===========================================================================================================
+# KEY CAPTURING
+#-----------------------------------------------------------------------------------------------------------
+@listen_to_keys = ( handler ) ->
+  ### thx to http://stackoverflow.com/a/12506613/256361 ###
+  #.........................................................................................................
+  ### try not to bind handler to same handler more than once: ###
+  return null if handler.__TRM__listen_to_keys__is_registered
+  Object.defineProperty handler, '__TRM__listen_to_keys__is_registered', value: true, enumerable: false
+  help                = @get_logger 'help', badge
+  last_key_was_ctrl_c = false
+  R                   = process.openStdin()
+  R.setRawMode  true
+  R.setEncoding 'utf-8'
+  R.resume()
+  #.........................................................................................................
+  R.on 'data', ( key ) =>
+    response = handler key
+    if key is '\u0003'
+      process.exit() if last_key_was_ctrl_c
+      last_key_was_ctrl_c = yes
+      help "press ctrl-C again to exit"
+    else
+      last_key_was_ctrl_c = no
+  #.........................................................................................................
+  return R
+
+#-----------------------------------------------------------------------------------------------------------
+@ask = ( prompt, handler ) ->
+  rl = ( require 'readline' ).createInterface
+    input:  process.stdin
+    output: process.stdout
+  #.........................................................................................................
+  prompt += ' ' unless /\s+$/.test prompt
+  rl.question ( @cyan prompt ), ( answer ) ->
+    rl.close()
+    handler null, answer
 
 
 #===========================================================================================================
