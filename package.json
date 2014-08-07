@@ -13,7 +13,8 @@
   },
   "dependencies": {
     "coffee-script": "~1.7.1",
-    "execSync": "~1.0.1-pre"
+    "execSync": "~1.0.1-pre",
+    "execsyncs": "^0.1.1"
   },
   "main": "./lib/main.js",
   "bugs": {
