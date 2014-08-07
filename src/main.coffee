@@ -96,7 +96,7 @@ ANALYZER                  = require './vt100-analyzer'
     ### https://github.com/mgutz/execSync
     NB `execSync` compiles with warnings under NodeJS 0.11.7 on my OSX box but appears to work, so let's
     pretend it won't be a problem for most people: ###
-    sh = require 'execSync'
+    sh = require 'execsync'
     { code, stdout } = sh.exec command
     throw new Error stdout unless code is 0
     return lines_from_stdout stdout
