@@ -14,7 +14,7 @@
   "dependencies": {
     "coffee-script": "~1.7.1",
     "execSync": "~1.0.1-pre",
-    "execsyncs": "^0.1.1"
+    "execsync": "0.0.5"
   },
   "main": "./lib/main.js",
   "bugs": {
