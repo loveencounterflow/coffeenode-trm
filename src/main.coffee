@@ -101,7 +101,7 @@ ANALYZER                  = require './vt100-analyzer'
     throw new Error stdout unless code is 0
     return lines_from_stdout stdout
   #.........................................................................................................
-  njs_cp.exec O[ 'on-change' ], ( error, stdout, stderr ) =>
+  ( require 'child_process' ).exec O[ 'on-change' ], ( error, stdout, stderr ) =>
     return handler error if error?
     return handler new Error stderr if stderr? and stderr.length isnt 0
     handler null, lines_from_stdout stdout
@@ -116,12 +116,8 @@ lines_from_stdout = ( stdout ) ->
 
 #-----------------------------------------------------------------------------------------------------------
 @spawn = ( command, parameters, handler ) ->
-  # whisper fat_ruler
-  # whisper command + ' ' + parameters.join ' '
-  R = njs_cp.spawn command, parameters, { stdio: 'inherit', }
-  #.........................................................................................................
-  R.on 'close', ( code ) =>
-    handler null, null
+  R = ( require 'child_process' ).spawn command, parameters, { stdio: 'inherit', }
+  R.on 'close', handler
   #.........................................................................................................
   return R
 
