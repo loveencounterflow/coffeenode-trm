@@ -118,7 +118,7 @@ lines_from_stdout = ( stdout ) ->
 @spawn = ( command, parameters, handler ) ->
   # whisper fat_ruler
   # whisper command + ' ' + parameters.join ' '
-  R = njs_spawn command, parameters, { stdio: 'inherit', }
+  R = njs_cp.spawn command, parameters, { stdio: 'inherit', }
   #.........................................................................................................
   R.on 'close', ( code ) =>
     handler null, null
