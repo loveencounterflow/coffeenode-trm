@@ -92,13 +92,13 @@ ANALYZER                  = require './vt100-analyzer'
 #-----------------------------------------------------------------------------------------------------------
 @execute = ( command, handler ) ->
   unless handler?
+    ### https://github.com/gvarsanyi/sync-exec ###
+    exec = require 'sync-exec'
     #...........................................................................................................
-    ### https://github.com/mgutz/execSync
-    NB `execSync` compiles with warnings under NodeJS 0.11.7 on my OSX box but appears to work, so let's
-    pretend it won't be a problem for most people: ###
-    sh = require 'execsync'
-    { code, stdout } = sh.exec command
-    throw new Error stdout unless code is 0
+    { stdout
+      stderr
+      status } = exec 'ls'
+    throw new Error stderr if stderr? and stderr.length > 0
     return lines_from_stdout stdout
   #.........................................................................................................
   ( require 'child_process' ).exec O[ 'on-change' ], ( error, stdout, stderr ) =>
